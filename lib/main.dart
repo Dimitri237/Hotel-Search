@@ -140,7 +140,7 @@ class SearchSection extends StatelessWidget {
                       context,
                      MaterialPageRoute(
                         builder: (context) {
-                          return StartPage();
+                          return TableEventsExemple();
                        },
                       ),
                     );
