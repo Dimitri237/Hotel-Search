@@ -47,48 +47,22 @@ class _TableEventsExempleState extends State<TableEventsExemple> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate:
-          isStartDate ? startDate ?? DateTime.now() : endDate ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2025),
-    );
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: isStartDate ? startDate ?? DateTime.now() : endDate ?? DateTime.now(),
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2025),
+  );
 
-    if (picked != null) {
-      setState(() {
-        if (isStartDate) {
-          startDate = picked;
-        } else {
-          endDate = picked;
-        }
-      });
-    }
+  if (picked != null) {
+    setState(() {
+      if (isStartDate) {
+        startDate = picked;
+      } else {
+        endDate = picked;
+      }
+    });
   }
-
-  void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
-  setState(() {
-    _focusedDay = focusedDay;
-    startDate = start;
-    endDate = end;
-
-    // Supprimer les événements existants de la plage de dates précédemment sélectionnée
-    if (startDate != null && endDate != null) {
-      for (DateTime date = startDate!; date.isBefore(endDate!.add(Duration(days: 1))); date = date.add(Duration(days: 1))) {
-        events.remove(date);
-      }
-    }
-
-    // Ajouter le même événement à toutes les dates de la plage sélectionnée
-    if (start != null && end != null) {
-      for (DateTime date = start; date.isBefore(end.add(Duration(days: 1))); date = date.add(Duration(days: 1))) {
-        events.update(date, (existingEvents) {
-          final List<Event> updatedEvents = [...existingEvents ?? [], Event(date, date, _eventController.text)];
-          return updatedEvents;
-        }, ifAbsent: () => [Event(date, date, _eventController.text)]);
-      }
-    }
-  });
 }
 
   @override
@@ -120,9 +94,11 @@ class _TableEventsExempleState extends State<TableEventsExemple> {
                 actions: [
                   ElevatedButton(
                     onPressed: () {
-                      events.update(_selectedDay!, (events) {
-  return [...events, Event(_selectedDay!, _selectedDay!, _eventController.text)];
-}, ifAbsent: () => [Event(_selectedDay!, _selectedDay!, _eventController.text)]);
+                      events.addAll({
+                        _selectedDay!: events[_selectedDay!] = [
+                          Event(_selectedDay!, _selectedDay!, _eventController.text)
+                        ]
+                      });
                       Navigator.of(context).pop();
                       _selectedEvents.value = _getEventsForDay(_selectedDay!);
                     },
@@ -144,10 +120,6 @@ class _TableEventsExempleState extends State<TableEventsExemple> {
             calendarFormat: _calendarFormat,
             startingDayOfWeek: StartingDayOfWeek.monday,
             onDaySelected: _onDaySelecte,
-            rangeStartDay: startDate,
-            rangeSelectionMode: RangeSelectionMode.toggledOn,
-            onRangeSelected: _onRangeSelected,
-            rangeEndDay: endDate,
             eventLoader: _getEventsForDay,
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
@@ -182,10 +154,8 @@ class _TableEventsExempleState extends State<TableEventsExemple> {
           SizedBox(
             height: 8.0,
           ),
-          Text(
-              'Date de début : ${dateFormat.format(startDate2 ?? DateTime.now())}'),
-          Text(
-              'Date de fin : ${DateFormat('dd/MM/yyyy').format(endDate ?? DateTime.now())}'),
+          Text('Date de début : ${dateFormat.format(startDate2 ?? DateTime.now())}'),
+          Text('Date de fin : ${DateFormat('dd/MM/yyyy').format(endDate ?? DateTime.now())}'),
           SizedBox(
             height: 8.0,
           ),

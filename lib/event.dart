@@ -1,9 +1,12 @@
 class Event {
-  final String title;
-  Event(this.title);
+  final DateTime startDate;
+  final DateTime endDate;
+  final String name;
 
+  Event(this.startDate, this.endDate, this.name);
+
+  @override
   String toString() {
-    return title;
+    return name;
   }
-  
 }
